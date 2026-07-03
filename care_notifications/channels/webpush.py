@@ -16,9 +16,7 @@ def dispatch_webpush(*, recipients, title: str, body: str = "", payload: dict | 
 
     subscriptions = WebPushSubscription.objects.filter(user_id__in=user_ids)
     data = json.dumps({"title": title, "body": body, **(payload or {})})
-
-    admin_email = plugin_settings.WEBPUSH_VAPID_ADMIN_EMAIL
-    sub_claim = admin_email if admin_email.startswith("mailto:") else f"mailto:{admin_email}"
+    vapid_claims = {"sub": f"mailto:{plugin_settings.WEBPUSH_VAPID_ADMIN_EMAIL}"}
 
     sent = 0
     dead_ids: list[int] = []
@@ -31,10 +29,7 @@ def dispatch_webpush(*, recipients, title: str, body: str = "", payload: dict | 
                 },
                 data=data,
                 vapid_private_key=plugin_settings.WEBPUSH_VAPID_PRIVATE_KEY,
-                # Fresh dict per send: pywebpush mutates it, injecting the
-                # endpoint-specific `aud` claim. Reusing one dict leaks the
-                # first endpoint's aud to other push services (401/403).
-                vapid_claims={"sub": sub_claim},
+                vapid_claims=vapid_claims,
             )
             sent += 1
         except WebPushException as exc:
