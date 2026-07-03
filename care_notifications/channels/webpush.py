@@ -29,7 +29,7 @@ def dispatch_webpush(*, recipients, title: str, body: str = "", payload: dict | 
                 },
                 data=data,
                 vapid_private_key=plugin_settings.WEBPUSH_VAPID_PRIVATE_KEY,
-                vapid_claims=vapid_claims,
+                vapid_claims=vapid_claims.copy(),
             )
             sent += 1
         except WebPushException as exc:
