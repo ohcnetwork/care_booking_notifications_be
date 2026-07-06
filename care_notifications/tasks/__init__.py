@@ -2,6 +2,11 @@ from celery import Celery, current_app
 
 from care_notifications.settings import plugin_settings
 from care_notifications.tasks.booking.notify_cancel import notify_cancel
+from care_notifications.tasks.booking.notify_users import (
+    notify_cancel_users,
+    notify_confirmation_users,
+    notify_rescheduled_users,
+)
 from care_notifications.tasks.booking.notify_confirmation import notify_confirmation
 from care_notifications.tasks.booking.notify_rescheduled import notify_rescheduled
 from care_notifications.tasks.booking.send_reminder import send_reminder

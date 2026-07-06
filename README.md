@@ -36,14 +36,23 @@ Then `make build && make up`.
 | `TOKEN_BOOKING_NOTIFICATIONS_ENABLED` | `True` | Master switch for all token booking notifications. |
 | `BOOKING_REMINDER_LEAD_MINUTES` | `60` | Minutes before slot start to send the reminder. |
 | `BOOKING_REMINDER_SWEEP_MINUTES` | `1` | How often the reminder sweep runs. |
-| `BOOKING_NOTIFY_CONFIRMATION` | `True` | Send confirmation SMS. |
+| `BOOKING_NOTIFY_CONFIRMATION` | `True` | Send confirmation SMS to the patient. |
+| `BOOKING_NOTIFY_CONFIRMATION_USERS` | `True` | Send an in-app / web-push alert to the users behind the booked resource — practitioner → the practitioner; healthcare_service → its managing-org members; location → the location's org members. |
 | `BOOKING_NOTIFY_REMINDER` | `True` | Send reminder SMS. |
 | `BOOKING_NOTIFY_CANCEL` | `True` | Send cancellation SMS. |
+| `BOOKING_NOTIFY_CANCEL_USERS` | `True` | Send a cancellation in-app / web-push alert to the resource's users (same audience rule as confirmation). |
 | `BOOKING_NOTIFY_RESCHEDULED` | `True` | Send reschedule SMS. |
+| `BOOKING_NOTIFY_RESCHEDULED_USERS` | `True` | Send a reschedule in-app / web-push alert to the resource's users (same audience rule as confirmation). |
 | `BOOKING_CONFIRMATION_SMS_TEXT` | `Hi {patient_name}, your appointment is confirmed for {slot_start:%a, %d %b %Y %H:%M}. - Care` | Confirmation SMS body. |
 | `BOOKING_REMINDER_SMS_TEXT` | `Reminder: {patient_name}, your appointment is at {slot_start:%a, %d %b %Y %H:%M}. - Care` | Reminder SMS body. |
 | `BOOKING_CANCEL_SMS_TEXT` | `Hi {patient_name}, your appointment for {slot_start:%a, %d %b %Y %H:%M} has been cancelled. - Care` | Cancel SMS body. |
 | `BOOKING_RESCHEDULED_SMS_TEXT` | `Hi {patient_name}, your previous appointment has been rescheduled. - Care` | Reschedule SMS body. |
+| `BOOKING_CONFIRMATION_USERS_TITLE` | `New appointment: {patient_name}` | Confirmation alert title. Placeholders: `{patient_name}`, `{slot_start}`. |
+| `BOOKING_CONFIRMATION_USERS_BODY` | `{slot_start:%a, %d %b %Y %H:%M}` | Confirmation alert body. Same placeholders. |
+| `BOOKING_CANCEL_USERS_TITLE` | `Appointment cancelled: {patient_name}` | Cancellation alert title. Same placeholders. |
+| `BOOKING_CANCEL_USERS_BODY` | `{slot_start:%a, %d %b %Y %H:%M}` | Cancellation alert body. Same placeholders. |
+| `BOOKING_RESCHEDULED_USERS_TITLE` | `Appointment rescheduled: {patient_name}` | Reschedule alert title. Same placeholders. |
+| `BOOKING_RESCHEDULED_USERS_BODY` | `{slot_start:%a, %d %b %Y %H:%M}` | Reschedule alert body. Same placeholders. |
 
 ### Service requests (in-app)
 
@@ -179,13 +188,13 @@ Both the in-app row (inbox API) and the web-push `event.data` carry the same tar
 
 | Field | Location | Notes |
 |---|---|---|
-| `resource_type` | top-level | one of `encounter`, `service_request`, `diagnostic_report`, `medication_stock` |
+| `resource_type` | top-level | one of `encounter`, `service_request`, `diagnostic_report`, `medication_stock`, `booking` |
 | `resource_id` | top-level | the resource's external_id |
 | `facility_id` | top-level | facility external_id — populated for every current event (each resolves from a non-null FK); the resolver keeps a defensive null-check regardless |
-| `payload.patient_id` | `payload` | present for `encounter`, `diagnostic_report` |
+| `payload.patient_id` | `payload` | present for `encounter`, `diagnostic_report`, `booking` |
 | `payload.location_id` | `payload` | present for `medication_stock` (this is the route target — see note) |
 
-(`booking` notifications are SMS-only and have no click target.)
+(The patient booking-confirmation **SMS** has no click target; the user booking-confirmation **in-app / web-push** alert does — see `booking` below.)
 
 ### `resource_type` → route
 
@@ -195,6 +204,7 @@ Both the in-app row (inbox API) and the web-push `event.data` carry the same tar
 | `service_request` | `/facility/{facility_id}/service_requests/{resource_id}` |
 | `diagnostic_report` | `/facility/{facility_id}/patient/{patient_id}/diagnostic_reports/{resource_id}` |
 | `medication_stock` | `/facility/{facility_id}/locations/{location_id}` |
+| `booking` | `/facility/{facility_id}/patient/{patient_id}/appointments/{resource_id}` |
 
 ### Reference resolver
 
