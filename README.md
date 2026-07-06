@@ -4,7 +4,7 @@ CARE plug that sends notifications to patients (SMS) and clinicians (in-app + we
 
 ## Currently supports
 
-1. Token bookings — confirm, reminder, cancel, reschedule. (SMS)
+1. Token bookings — confirm, reminder, cancel, reschedule. (patient SMS + user in-app/web push)
 2. Service requests — raised. (in-app)
 3. Diagnostic reports — ready. (in-app)
 4. Encounters — IP admission with location assigned. (in-app)
@@ -36,14 +36,26 @@ Then `make build && make up`.
 | `TOKEN_BOOKING_NOTIFICATIONS_ENABLED` | `True` | Master switch for all token booking notifications. |
 | `BOOKING_REMINDER_LEAD_MINUTES` | `60` | Minutes before slot start to send the reminder. |
 | `BOOKING_REMINDER_SWEEP_MINUTES` | `1` | How often the reminder sweep runs. |
-| `BOOKING_NOTIFY_CONFIRMATION` | `True` | Send confirmation SMS. |
+| `BOOKING_NOTIFY_CONFIRMATION` | `True` | Send confirmation SMS to the patient. |
+| `BOOKING_NOTIFY_CONFIRMATION_USERS` | `True` | Send an in-app / web-push alert to the users behind the booked resource — practitioner → the practitioner; healthcare_service → its managing-org members; location → the location's org members. |
 | `BOOKING_NOTIFY_REMINDER` | `True` | Send reminder SMS. |
+| `BOOKING_NOTIFY_REMINDER_USERS` | `True` | Send a reminder in-app / web-push alert to the resource's users (same audience rule as confirmation) when a booking's slot enters the lead window. |
 | `BOOKING_NOTIFY_CANCEL` | `True` | Send cancellation SMS. |
+| `BOOKING_NOTIFY_CANCEL_USERS` | `True` | Send a cancellation in-app / web-push alert to the resource's users (same audience rule as confirmation). |
 | `BOOKING_NOTIFY_RESCHEDULED` | `True` | Send reschedule SMS. |
+| `BOOKING_NOTIFY_RESCHEDULED_USERS` | `True` | Send a reschedule in-app / web-push alert to the resource's users (same audience rule as confirmation). |
 | `BOOKING_CONFIRMATION_SMS_TEXT` | `Hi {patient_name}, your appointment is confirmed for {slot_start:%a, %d %b %Y %H:%M}. - Care` | Confirmation SMS body. |
 | `BOOKING_REMINDER_SMS_TEXT` | `Reminder: {patient_name}, your appointment is at {slot_start:%a, %d %b %Y %H:%M}. - Care` | Reminder SMS body. |
 | `BOOKING_CANCEL_SMS_TEXT` | `Hi {patient_name}, your appointment for {slot_start:%a, %d %b %Y %H:%M} has been cancelled. - Care` | Cancel SMS body. |
 | `BOOKING_RESCHEDULED_SMS_TEXT` | `Hi {patient_name}, your previous appointment has been rescheduled. - Care` | Reschedule SMS body. |
+| `BOOKING_CONFIRMATION_USERS_TITLE` | `New appointment: {patient_name}` | Confirmation alert title. Placeholders: `{patient_name}`, `{slot_start}`. |
+| `BOOKING_CONFIRMATION_USERS_BODY` | `{slot_start:%a, %d %b %Y %H:%M}` | Confirmation alert body. Same placeholders. |
+| `BOOKING_CANCEL_USERS_TITLE` | `Appointment cancelled: {patient_name}` | Cancellation alert title. Same placeholders. |
+| `BOOKING_CANCEL_USERS_BODY` | `{slot_start:%a, %d %b %Y %H:%M}` | Cancellation alert body. Same placeholders. |
+| `BOOKING_RESCHEDULED_USERS_TITLE` | `Appointment rescheduled: {patient_name}` | Reschedule alert title. Same placeholders. |
+| `BOOKING_RESCHEDULED_USERS_BODY` | `{slot_start:%a, %d %b %Y %H:%M}` | Reschedule alert body. Same placeholders. |
+| `BOOKING_REMINDER_USERS_TITLE` | `Upcoming appointment: {patient_name}` | Reminder alert title. Same placeholders. |
+| `BOOKING_REMINDER_USERS_BODY` | `{slot_start:%a, %d %b %Y %H:%M}` | Reminder alert body. Same placeholders. |
 
 ### Service requests (in-app)
 
@@ -56,12 +68,12 @@ Then `make build && make up`.
 
 ### Diagnostic reports (in-app)
 
-| Key | Default | Description |
-|---|---|---|
-| `DIAGNOSTIC_REPORT_NOTIFICATIONS_ENABLED` | `True` | Master switch for all diagnostic report notifications. |
-| `DIAGNOSTIC_REPORT_NOTIFY_READY` | `True` | Notify when a DR transitions to `final`. Sent to the originating SR's requester. |
-| `DIAGNOSTIC_REPORT_READY_TITLE` | `Diagnostic report ready for {patient_name}` | Inbox title. |
-| `DIAGNOSTIC_REPORT_READY_BODY` | `` | Inbox body (empty by default; title carries enough). |
+| Key | Default | Description                                                                                                               |
+|---|---|---------------------------------------------------------------------------------------------------------------------------|
+| `DIAGNOSTIC_REPORT_NOTIFICATIONS_ENABLED` | `True` | Master switch for all diagnostic report notifications.                                                                    |
+| `DIAGNOSTIC_REPORT_NOTIFY_READY` | `True` | Notify when a DR transitions to `final`. Sent to the encounter's care team **and** the originating SR's requester.        |
+| `DIAGNOSTIC_REPORT_READY_TITLE` | `Diagnostic report ready for {patient_name}` | Inbox title.                                                                                                              |
+| `DIAGNOSTIC_REPORT_READY_BODY` | `` | Inbox body (empty by default; title carries enough).                                                                      |
 
 ### Encounters (in-app)
 
@@ -69,8 +81,8 @@ Then `make build && make up`.
 |---|---|---|
 | `ENCOUNTER_NOTIFICATIONS_ENABLED` | `True` | Master switch for all encounter notifications. |
 | `ENCOUNTER_NOTIFY_IP_CREATED` | `True` | Notify when an encounter newly becomes IP (`encounter_class="imp"`) with a `current_location` assigned. Sent to care team + members of every facility-org in the encounter's access cache. |
-| `ENCOUNTER_IP_CREATED_TITLE` | `New IP encounter: {patient_name}` | Inbox title. |
-| `ENCOUNTER_IP_CREATED_BODY` | `Location: {location_name}` | Inbox body. |
+| `ENCOUNTER_IP_CREATED_TITLE` | `Bed {location_name} assigned to {patient_name}` | Inbox title. |
+| `ENCOUNTER_IP_CREATED_BODY` | `{patient_name} is assigned to bed {location_name}` | Inbox body. |
 
 ### Medication stock (in-app)
 
@@ -179,13 +191,13 @@ Both the in-app row (inbox API) and the web-push `event.data` carry the same tar
 
 | Field | Location | Notes |
 |---|---|---|
-| `resource_type` | top-level | one of `encounter`, `service_request`, `diagnostic_report`, `medication_stock` |
+| `resource_type` | top-level | one of `encounter`, `service_request`, `diagnostic_report`, `medication_stock`, `booking` |
 | `resource_id` | top-level | the resource's external_id |
 | `facility_id` | top-level | facility external_id — populated for every current event (each resolves from a non-null FK); the resolver keeps a defensive null-check regardless |
-| `payload.patient_id` | `payload` | present for `encounter`, `diagnostic_report` |
+| `payload.patient_id` | `payload` | present for `encounter`, `diagnostic_report`, `booking` |
 | `payload.location_id` | `payload` | present for `medication_stock` (this is the route target — see note) |
 
-(`booking` notifications are SMS-only and have no click target.)
+(The patient booking-confirmation **SMS** has no click target; the user booking-confirmation **in-app / web-push** alert does — see `booking` below.)
 
 ### `resource_type` → route
 
@@ -195,6 +207,7 @@ Both the in-app row (inbox API) and the web-push `event.data` carry the same tar
 | `service_request` | `/facility/{facility_id}/service_requests/{resource_id}` |
 | `diagnostic_report` | `/facility/{facility_id}/patient/{patient_id}/diagnostic_reports/{resource_id}` |
 | `medication_stock` | `/facility/{facility_id}/locations/{location_id}` |
+| `booking` | `/facility/{facility_id}/patient/{patient_id}/appointments/{resource_id}` |
 
 ### Reference resolver
 
