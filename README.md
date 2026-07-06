@@ -4,7 +4,7 @@ CARE plug that sends notifications to patients (SMS) and clinicians (in-app + we
 
 ## Currently supports
 
-1. Token bookings — confirm, reminder, cancel, reschedule. (SMS)
+1. Token bookings — confirm, reminder, cancel, reschedule. (patient SMS + user in-app/web push)
 2. Service requests — raised. (in-app)
 3. Diagnostic reports — ready. (in-app)
 4. Encounters — IP admission with location assigned. (in-app)
