@@ -68,12 +68,12 @@ Then `make build && make up`.
 
 ### Diagnostic reports (in-app)
 
-| Key | Default | Description |
-|---|---|---|
-| `DIAGNOSTIC_REPORT_NOTIFICATIONS_ENABLED` | `True` | Master switch for all diagnostic report notifications. |
-| `DIAGNOSTIC_REPORT_NOTIFY_READY` | `True` | Notify when a DR transitions to `final`. Sent to the originating SR's requester. |
-| `DIAGNOSTIC_REPORT_READY_TITLE` | `Diagnostic report ready for {patient_name}` | Inbox title. |
-| `DIAGNOSTIC_REPORT_READY_BODY` | `` | Inbox body (empty by default; title carries enough). |
+| Key | Default | Description                                                                                                               |
+|---|---|---------------------------------------------------------------------------------------------------------------------------|
+| `DIAGNOSTIC_REPORT_NOTIFICATIONS_ENABLED` | `True` | Master switch for all diagnostic report notifications.                                                                    |
+| `DIAGNOSTIC_REPORT_NOTIFY_READY` | `True` | Notify when a DR transitions to `final`. Sent to the encounter's care team **and** the originating SR's requester.        |
+| `DIAGNOSTIC_REPORT_READY_TITLE` | `Diagnostic report ready for {patient_name}` | Inbox title.                                                                                                              |
+| `DIAGNOSTIC_REPORT_READY_BODY` | `` | Inbox body (empty by default; title carries enough).                                                                      |
 
 ### Encounters (in-app)
 
@@ -81,8 +81,8 @@ Then `make build && make up`.
 |---|---|---|
 | `ENCOUNTER_NOTIFICATIONS_ENABLED` | `True` | Master switch for all encounter notifications. |
 | `ENCOUNTER_NOTIFY_IP_CREATED` | `True` | Notify when an encounter newly becomes IP (`encounter_class="imp"`) with a `current_location` assigned. Sent to care team + members of every facility-org in the encounter's access cache. |
-| `ENCOUNTER_IP_CREATED_TITLE` | `New IP encounter: {patient_name}` | Inbox title. |
-| `ENCOUNTER_IP_CREATED_BODY` | `Location: {location_name}` | Inbox body. |
+| `ENCOUNTER_IP_CREATED_TITLE` | `Bed {location_name} assigned to {patient_name}` | Inbox title. |
+| `ENCOUNTER_IP_CREATED_BODY` | `{patient_name} is assigned to bed {location_name}` | Inbox body. |
 
 ### Medication stock (in-app)
 
