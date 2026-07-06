@@ -71,3 +71,13 @@ def notify_rescheduled_users(booking_id: int):
         "BOOKING_RESCHEDULED_USERS_TITLE",
         "BOOKING_RESCHEDULED_USERS_BODY",
     )
+
+
+@shared_task(**RETRY)
+def notify_reminder_users(booking_id: int):
+    _notify_booking_users(
+        booking_id,
+        EventType.booking_reminder.value,
+        "BOOKING_REMINDER_USERS_TITLE",
+        "BOOKING_REMINDER_USERS_BODY",
+    )

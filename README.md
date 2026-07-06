@@ -39,6 +39,7 @@ Then `make build && make up`.
 | `BOOKING_NOTIFY_CONFIRMATION` | `True` | Send confirmation SMS to the patient. |
 | `BOOKING_NOTIFY_CONFIRMATION_USERS` | `True` | Send an in-app / web-push alert to the users behind the booked resource — practitioner → the practitioner; healthcare_service → its managing-org members; location → the location's org members. |
 | `BOOKING_NOTIFY_REMINDER` | `True` | Send reminder SMS. |
+| `BOOKING_NOTIFY_REMINDER_USERS` | `True` | Send a reminder in-app / web-push alert to the resource's users (same audience rule as confirmation) when a booking's slot enters the lead window. |
 | `BOOKING_NOTIFY_CANCEL` | `True` | Send cancellation SMS. |
 | `BOOKING_NOTIFY_CANCEL_USERS` | `True` | Send a cancellation in-app / web-push alert to the resource's users (same audience rule as confirmation). |
 | `BOOKING_NOTIFY_RESCHEDULED` | `True` | Send reschedule SMS. |
@@ -53,6 +54,8 @@ Then `make build && make up`.
 | `BOOKING_CANCEL_USERS_BODY` | `{slot_start:%a, %d %b %Y %H:%M}` | Cancellation alert body. Same placeholders. |
 | `BOOKING_RESCHEDULED_USERS_TITLE` | `Appointment rescheduled: {patient_name}` | Reschedule alert title. Same placeholders. |
 | `BOOKING_RESCHEDULED_USERS_BODY` | `{slot_start:%a, %d %b %Y %H:%M}` | Reschedule alert body. Same placeholders. |
+| `BOOKING_REMINDER_USERS_TITLE` | `Upcoming appointment: {patient_name}` | Reminder alert title. Same placeholders. |
+| `BOOKING_REMINDER_USERS_BODY` | `{slot_start:%a, %d %b %Y %H:%M}` | Reminder alert body. Same placeholders. |
 
 ### Service requests (in-app)
 
